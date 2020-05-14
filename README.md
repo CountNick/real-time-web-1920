@@ -114,35 +114,96 @@ socket.emit('play', currentRoom)
 ```js
 socket.emit('toep', 'er word getoept', currentRoom)
 ```
-*__When a player clicks on the 'ik ga niet mee' button this event gets emitted to the server__*
+*__When a player clicks on toep button this event gets emitted to the server, the server will then emit the 'toep popup' event to all sockets except the sender__*
 
 **Listeners**
 ```js
 socket.on('full', (msg) => {})
+```
+*__When a room is full that a player tries to join, the client will be asked to try and join a different room__*
+
+```js
 socket.on('player', (msg, name) => {})
+```
+*__When a player has joined a room, said player gets all neccessary info on the player event__*
+
+```js
 socket.on('your turn', (msg) => {})
+```
+*__When a player plays a card the turn will be passed to the next player. A function will get executed that adds an eventlistener to each card and removes these eventlisteners when a card is clicked__*
+
+```js
 socket.on('toep popup', (msg) => {})
+```
+*__Shows the toep popup__*
+
+```js
 socket.on('deal cards', (cards, turn) => {})
+```
+*__Appends the players drawn cards to their cards section__*
+
+```js
 socket.on('show played card', (card, cards) => {})
+```
+*__Appends the clicked card to the game field so every player in the room can see the played card__*
+
+```js
 socket.on('game over', (msg) => {})
+```
+*__When a round is over this event will trigger the next round__*
+
+```js
 socket.on('points', (number) =>{})
+```
+*__After a round is finished the point will be send to each socket__*
+
+```js
 socket.on('started already', (msg) => {})
 ```
+*__When a room already started playing, and another player wants to join this event gets fired. It will ask the player to join another room__*
 
 ### Server side
 
 **Emitters**
 ```js
 socket.to(players[obj.turn]).emit('your turn', `it's your turn ${playerList[obj.turn].name}`)
+```
+
+```js
 socket.emit('full', 'This room is full', room)
+```
+
+```js
 socket.emit('started already', 'already started playing')
+```
+
+```js
 socket.emit('player', { playerId, players, room}, player.name)
+```
+
+```js
 socket.broadcast.emit('play', room)
+```
+
+```js
 io.to(playerId).emit("deal cards", transformedCards)
+```
+```js
 socket.to(room).emit('toep popup', `${toeper.name} toept, ga je mee?`)
+```
+```js
 io.to(toepFolder.id).emit('points', toepFolder.points)
+```
+
+```js
 io.in(room).emit("game over", `${winner.name}, won this game. Get ready for the next one!`)
+```
+
+```js
 io.in(room).emit("show played card", playedCard)
+```
+
+```js
 io.to(player.id).emit('points', player.points)
 ```
 
