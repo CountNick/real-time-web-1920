@@ -75,18 +75,46 @@ there is an array for each gameroom stored on the server, each game in said arra
 
 ### Client side
 
-**Emitters**
+#### **Emitters**
 ```js
 socket.emit('send-nickname', nickname.value)
+```
+*__Emits the players chosen nickname to the server__*
+
+```js
 socket.emit('room', button.value)
+```
+*__Emits the players chosen room to the server__*
+
+```js
 socket.emit('join toep', currentRoom)
+```
+*__When a player clicks on the 'ik ga mee' button this event gets emitted to the server__*
+
+```js
 socket.emit('fold toep', currentRoom)
+```
+*__When a player clicks on the 'ik ga niet mee' button this event gets emitted to the server__*
+
+```js
 socket.emit('next round', currentRoom)
+```
+*__When the 'game over' event is triggered this event get emitted to the server, it will reshuffle the deck and emit the deal cards event again__*
+
+```js
 socket.emit('clicked card', foundCard, cards, currentRoom)
+```
+*__When a player clicks on a card he wants to play a function gets fired which find said card and emits it to the server. The card will get pushed into the playedCards array of that player__*
+
+```js
 socket.emit('play', currentRoom)
+```
+*__Once the start game button gets clicked the game will emit the play event to the server, this will start the game__*
+
+```js
 socket.emit('toep', 'er word getoept', currentRoom)
 ```
-
+*__When a player clicks on the 'ik ga niet mee' button this event gets emitted to the server__*
 
 **Listeners**
 ```js
