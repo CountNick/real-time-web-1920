@@ -1,4 +1,4 @@
-# Tjoep!
+# Tjoep!🃏
 
 ![Tjoep](https://user-images.githubusercontent.com/47485018/81940728-2f869a80-95f8-11ea-9786-f4650e0de2c1.png)
 
@@ -15,11 +15,13 @@ Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wis
 * ### [Data lifecycle](https://github.com/CountNick/real-time-web-1920#data-lifecycle-1)
 * ### [Data stored](https://github.com/CountNick/real-time-web-1920#data-stored-1)
 * ### [Real Time events](https://github.com/CountNick/real-time-web-1920#realtime-events)
+    * #### [Client side](https://github.com/CountNick/real-time-web-1920#client-side)
+    * #### [Server side](https://github.com/CountNick/real-time-web-1920#server-side)
 * ### [API Used](https://github.com/CountNick/real-time-web-1920#api-used-1)
 * ### [Features]()
 * ### [Installation]()
 
-## Game rules
+## Game rules 🎮
 
 Toepen is played with the follwing cards: Ace, King, Queen and Jack and cards 10, 9, 8 and 7. The other cards are removed from the game.
 
@@ -33,11 +35,11 @@ If you get 4 cards that aren't numbers you can call 'vuile was'. If no one decid
 
 
 
-## Data lifecycle
+## Data lifecycle :recycle:
 
 ![DLS](https://user-images.githubusercontent.com/47485018/81064952-e5583780-8eda-11ea-834e-0229f440116d.png)
 
-## Data stored
+## Data stored 🗃
 
 there is an array for each gameroom stored on the server, each game in said array looks like this:
 
@@ -71,9 +73,9 @@ there is an array for each gameroom stored on the server, each game in said arra
 * multiplier: if a player joins one or more toeps, these wil get added to the multiplier. At the end of the game these will be multiplied with 1 to get the amount of points
 
 
-## Realtime events
+## Realtime events 🎉
 
-### Client side
+### Client side 💻
 
 #### **Emitters**
 ```js
@@ -171,7 +173,7 @@ socket.on('started already', (msg) => {})
 ```
 
 
-### Server side
+### Server side 📟
 
 **Emitters**
 ```js
@@ -262,7 +264,7 @@ socket.on("next round", async(room) => {})
 //This event will shuffle the deck that belongs to the room, and will deal new cards to all players in the room. the next round is now started
 ```
 
-## API used
+## API used 🗂
 
 In order to get a card deck the app makes use of the[Deck of cards api](https://deckofcardsapi.com/). You don't need a API key to use the API, and i don't think theres a request limit. The types of requests that are used:
 
@@ -280,6 +282,22 @@ async function getNewCardDeck() {
     return cards;
   }
 ```
+This function gets executed for each item in the games array in a for loop. This is done so each room has it's own deck:
+
+```js
+games[i].deck = await Api.getNewCardDeck()
+```
+
+the deck object looks like this:
+
+```js
+deck: {
+    success: true,
+    deck_id: '7rvqqcpecrxs',
+    remaining: 32,
+    shuffled: true
+  }
+```
 
 2: Draw 4 cards out of the card deck
 ```js
@@ -292,6 +310,104 @@ async function drawCards(id, count) {
   
     return cards;
   }
+```
+This is the data that gets returned: 
+```js
+{
+  success: true,
+  deck_id: '0ixa32owkhjo',
+  cards: [
+    {
+      code: '0D',
+      image: 'https://deckofcardsapi.com/static/img/0D.png',
+      images: [Object],
+      value: '10',
+      suit: 'DIAMONDS'
+    },
+    {
+      code: '8C',
+      image: 'https://deckofcardsapi.com/static/img/8C.png',
+      images: [Object],
+      value: '8',
+      suit: 'CLUBS'
+    },
+    {
+      code: 'QD',
+      image: 'https://deckofcardsapi.com/static/img/QD.png',
+      images: [Object],
+      value: 'QUEEN',
+      suit: 'DIAMONDS'
+    },
+    {
+      code: 'AH',
+      image: 'https://deckofcardsapi.com/static/img/AH.png',
+      images: [Object],
+      value: 'ACE',
+      suit: 'HEARTS'
+    }
+  ],
+  remaining: 28
+}
+```
+To make my life a little bit easier i pass this array to a transformation function which will give each card with a value of: 'JACK', 'QUEEN', 'KING' or 'ACE' a value of 3, 4, 5 or 6.
+
+the transformation function looks like this:
+```js
+function transformCardValues(cards){
+    
+cards.cards.map(card => {
+    // console.log('vaaaluee: ', card.value.length)
+
+    if(card.value.length === 1 || card.value === '10') card.value = +card.value
+
+    if(card.value === 'JACK') card.value = 3
+    if(card.value === 'QUEEN') card.value = 4
+    if(card.value === 'KING') card.value = 5
+    if(card.value === 'ACE') card.value = 6
+  
+  })
+
+  return cards
+}
+```
+And the returned object will then look like this:
+```js
+{
+  success: true,
+  deck_id: '0ixa32owkhjo',
+  cards: [
+    {
+      code: '0D',
+      image: 'https://deckofcardsapi.com/static/img/0D.png',
+      images: [Object],
+      value: '10',
+      suit: 'DIAMONDS'
+    },
+    {
+      code: '8C',
+      image: 'https://deckofcardsapi.com/static/img/8C.png',
+      images: [Object],
+      value: '8',
+      suit: 'CLUBS'
+    },
+    {
+      code: 'QD',
+      image: 'https://deckofcardsapi.com/static/img/QD.png',
+      images: [Object],
+      value: 4,
+      suit: 'DIAMONDS'
+    },
+    {
+      code: 'AH',
+      image: 'https://deckofcardsapi.com/static/img/AH.png',
+      images: [Object],
+      value: 6,
+      suit: 'HEARTS'
+    }
+  ],
+  remaining: 28
+}
+
 ```
 
 3: Shuffle the cards when everyone is done with the round
@@ -306,13 +422,29 @@ async function shuffleCards(id) {
   return shuffledDeck
 }
 ```
-# Features
 
+## Installation 📀
 
+```
+git clone https://github.com/CountNick/real-time-web-1920.git
+```
 
-## Uiteindelijke keuze: Toepen
+```
+cd real-time-web-1920
+```
 
-Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wist ik dan ook eindelijk wat mijn concept zou moeten zijn, een potje tjoep natuurlijk!
+Start development version: 
+```
+npm run start:dev
+```
 
-## Installation
+Or if you just want to see the app in action on localhost:
 
+```
+npm start
+```
+
+open up a browser and visit the app at:
+```
+localhost:4000
+```

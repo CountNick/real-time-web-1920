@@ -54,7 +54,7 @@ for (let i = 0; i < 4; i++) {
       points: 0,
       roundWinner: false,
       multiplier: 0
-    },
+    }
   ]};
   games[i].deck = await Api.getNewCardDeck()
 }
@@ -139,7 +139,7 @@ app
 
     console.log(playerId + ' connected');
 
-    socket.on("send-nickname", nickname => {
+    socket.on("send-nickname", (nickname) => {
       // Taking turns
       // players.push({ id: socket.id, name: nickname, playedCards: [], points: 0, roundWinner: false});
       // console.log(users)
@@ -205,9 +205,6 @@ app
 
     })
 
-    socket.on('game started', (room) => {
-      socket.emit('game started', room)
-    })
 
     socket.on('toep', (msg, room) => {
       const toeper = findPlayer(games[room].playerList, socket.id)
