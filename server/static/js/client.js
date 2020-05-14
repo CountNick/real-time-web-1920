@@ -126,7 +126,7 @@ socket.on('your turn', (msg) => {
 
 })
 
-toepButton.addEventListener('click', () => socket.emit('toep', 'er word getoept', currentRoom))
+
 
 socket.on('toep popup', (msg) => {
     // console.log(msg)
@@ -151,6 +151,9 @@ socket.on('toep popup', (msg) => {
 
 socket.on('deal cards', (cards, turn) => {
     // socket.on('pass turn', (player) => console.log('rukkeee:', player))
+
+    toepButton.disabled = false
+    toepButton.addEventListener('click', toep)
 
     myCards = cards
     
@@ -249,4 +252,10 @@ function startGame(){
     socket.emit('play', currentRoom)
     startButton.removeEventListener('click', startGame);
     startButton.disabled = true
+}
+
+function toep(){
+    socket.emit('toep', 'er word getoept', currentRoom)
+    toepButton.removeEventListener('click', toep)
+    toepButton.disabled = true
 }
