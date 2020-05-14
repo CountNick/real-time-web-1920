@@ -78,89 +78,98 @@ there is an array for each gameroom stored on the server, each game in said arra
 #### **Emitters**
 ```js
 socket.emit('send-nickname', nickname.value)
+//Emits the players chosen nickname to the server
 ```
-*__Emits the players chosen nickname to the server__*
 
 ```js
 socket.emit('room', button.value)
+//Emits the players chosen room to the server
 ```
-*__Emits the players chosen room to the server__*
 
 ```js
 socket.emit('join toep', currentRoom)
+//When a player clicks on the 'ik ga mee' button this event gets emitted to the server
 ```
-*__When a player clicks on the 'ik ga mee' button this event gets emitted to the server__*
 
 ```js
 socket.emit('fold toep', currentRoom)
+//When a player clicks on the 'ik ga niet mee' button this event gets emitted to the server
 ```
-*__When a player clicks on the 'ik ga niet mee' button this event gets emitted to the server__*
 
 ```js
 socket.emit('next round', currentRoom)
+//When the 'game over' event is triggered this event get emitted to the server, it will reshuffle the deck and emit the deal cards event again
 ```
-*__When the 'game over' event is triggered this event get emitted to the server, it will reshuffle the deck and emit the deal cards event again__*
 
 ```js
 socket.emit('clicked card', foundCard, cards, currentRoom)
+//When a player clicks on a card he wants to play a function gets fired which find said card and emits it to the server. The card will get pushed into the playedCards array of that player
 ```
-*__When a player clicks on a card he wants to play a function gets fired which find said card and emits it to the server. The card will get pushed into the playedCards array of that player__*
 
 ```js
 socket.emit('play', currentRoom)
+//Once the start game button gets clicked the game will emit the play event to the server, this will start the game
 ```
-*__Once the start game button gets clicked the game will emit the play event to the server, this will start the game__*
+
 
 ```js
 socket.emit('toep', 'er word getoept', currentRoom)
+//When a player clicks on toep button this event gets emitted to the server, the server will then emit the 'toep popup' event to all sockets except the sender
 ```
-*__When a player clicks on toep button this event gets emitted to the server, the server will then emit the 'toep popup' event to all sockets except the sender__*
+
 
 **Listeners**
 ```js
 socket.on('full', (msg) => {})
+//When a room is full that a player tries to join, the client will be asked to try and join a different room
 ```
-*__When a room is full that a player tries to join, the client will be asked to try and join a different room__*
+
 
 ```js
 socket.on('player', (msg, name) => {})
+//When a player has joined a room, said player gets all neccessary info on the player event
 ```
-*__When a player has joined a room, said player gets all neccessary info on the player event__*
+
 
 ```js
 socket.on('your turn', (msg) => {})
+//When a player plays a card the turn will be passed to the next player. A function will get executed that adds an eventlistener to each card and removes these eventlisteners when a card is clicked
 ```
-*__When a player plays a card the turn will be passed to the next player. A function will get executed that adds an eventlistener to each card and removes these eventlisteners when a card is clicked__*
+
 
 ```js
 socket.on('toep popup', (msg) => {})
+//Shows the toep popup
 ```
-*__Shows the toep popup__*
 
 ```js
 socket.on('deal cards', (cards, turn) => {})
+//Appends the players drawn cards to their cards section
 ```
-*__Appends the players drawn cards to their cards section__*
+
 
 ```js
 socket.on('show played card', (card, cards) => {})
+//Appends the clicked card to the game field so every player in the room can see the played card
 ```
-*__Appends the clicked card to the game field so every player in the room can see the played card__*
 
 ```js
 socket.on('game over', (msg) => {})
+//When a round is over this event will trigger the next round
 ```
-*__When a round is over this event will trigger the next round__*
+
 
 ```js
 socket.on('points', (number) =>{})
+//After a round is finished the point will be send to each socket
 ```
-*__After a round is finished the point will be send to each socket__*
+
 
 ```js
 socket.on('started already', (msg) => {})
+//When a room already started playing, and another player wants to join this event gets fired. It will ask the player to join another room
 ```
-*__When a room already started playing, and another player wants to join this event gets fired. It will ask the player to join another room__*
+
 
 ### Server side
 
