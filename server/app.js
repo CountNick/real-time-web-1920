@@ -161,10 +161,15 @@ app
         socket.emit('full', 'This room is full', room)
         return;
     }
+    if(games[room].started === true){
+      socket.emit('started already', 'already started playing')
+    }
      console.log(games[room]);
     players = games[room].players
 
-    socket.emit('player', { playerId, players, room })
+    const player = findPlayer(games[room].playerList, socket.id)
+
+    socket.emit('player', { playerId, players, room}, player.name)
 
       })
     })
@@ -172,6 +177,10 @@ app
     socket.on('play', (room) => {
   
       socket.broadcast.emit('play', room);
+      games[room].started = true
+
+      
+
       console.log("ready " + room);
       let players = games[room].pid.filter(id => id !== 0)
 
@@ -194,6 +203,10 @@ app
       deal()
 
 
+    })
+
+    socket.on('game started', (room) => {
+      socket.emit('game started', room)
     })
 
     socket.on('toep', (msg, room) => {
@@ -227,6 +240,8 @@ app
 
       toepFolder.points++
 
+      io.to(toepFolder.id).emit('points', toepFolder.points)
+
       if(players.length === 2){
 
         const winner = players.find(player => player.id !== toepFolder.id)
@@ -237,7 +252,7 @@ app
         })
 
         io.in(room).emit("game over", `${winner.name}, won this game. Get ready for the next one!`)
-
+        
       }
 
     })
@@ -483,6 +498,11 @@ app
             console.log(players)
 
             io.in(room).emit("game over", `${fourthRoundWinner.name}, won this game. Get ready for the next one!`)
+
+            const player = findPlayer(games[room].playerList, socket.id)
+
+            io.to(player.id).emit('points', player.points)
+            
 
             players.forEach(player => player.playedCards = [])
 

@@ -5,8 +5,7 @@ const roomFullSection = document.querySelector('.roomFull')
 const rooms = document.getElementsByName('room') 
 const chatScreen = document.querySelector('.chat')
 const loginForm = document.querySelector('.loginForm')
-const chatForm = document.querySelector('.chatForm')
-const message = document.getElementById('message')
+const playerInfo = document.querySelector('.playerInfo')
 const nickname = document.getElementById('nickname')
 const messageList = document.getElementById('messages')
 const cardsSection = document.querySelector('.cards')
@@ -17,6 +16,7 @@ const toepButton = document.querySelector('.toep')
 const toepMessage = document.querySelector('.toepMessage')
 const joinToepButton = document.querySelector('.joinToep')
 const foldToepButton = document.querySelector('.foldToep')
+const pointsDisplay = document.querySelector('.points')
 const leaveButton = document.querySelector('.leave')
 const popup = document.getElementById('myModal')
 let players;
@@ -58,27 +58,24 @@ loginForm.addEventListener('submit', (event) => {
     // socket.emit('room', room.value)
     loginScreen.style.display = 'none'
     gameField.style.display = 'block'
+    playerInfo.style.opacity = 1
     
 })
 
-// socket.on('send start signal', (mdg, cards) => {
-//     console.log(mdg)
 
-//     startButton.disabled = false
-
-//     startButton.addEventListener('click', startGame)
-//     // socket.emit('pass turn')
-// })
 
 socket.on('full', (msg) => {
     roomFullSection.style.display = 'block'
     gameField.style.display = 'none'
 })
 
-socket.on('player', (msg) => {
+socket.on('player', (msg, name) => {
     players = msg.players
 
-    turn.innerHTML = 'Player ' + players
+    console.log('curr player: ', msg.player)
+
+    turn.innerHTML = 'Your name: ' + name
+    pointsDisplay.textContent = points
 
     if(players >= 2){
     
@@ -203,6 +200,18 @@ socket.on('round winner', (msg) => {
     console.log(msg)
 })
 
+socket.on('points', (number) =>{
+    pointsDisplay.textContent = number
+
+    console.log(number)
+})
+
+socket.on('started already', (msg) => {
+    playerInfo.style.display = 'none'
+    roomFullSection.style.display = 'block'
+    console.log(msg)
+})
+
 function appendMessage(message, classToBeAdded){
     
     let li = document.createElement('li')
@@ -250,6 +259,7 @@ function findCardInArray(array, cardToBeFound){
 
 function startGame(){
     socket.emit('play', currentRoom)
+    // socket.emit('game started', currentRoom)
     startButton.removeEventListener('click', startGame);
     startButton.disabled = true
 }

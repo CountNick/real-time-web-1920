@@ -7,6 +7,7 @@ Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wis
 
 * ### [Game rules]()
 * ### [Data lifecycle]()
+* ### [Data stored]
 * ### [Real Time events]()
 * ### [API Used]()
 * ### [Features]()
@@ -100,7 +101,10 @@ The clicked card emits to the server which card was clicked, on the server the s
 socket.emit('clicked card', foundCard, cards)
 ```
 
-Toep event
+#### Toep events
+
+When a player clicks the toepbutton the toep event get send. This event emits a toep popup event to every socket except the sender
+
 ```js
 toepButton.addEventListener('click', () => socket.emit('toep', 'er word getoept'))
 ```
@@ -112,6 +116,10 @@ socket.on('toep popup', (msg) => {
     toepMessage.textContent = msg
 })
 ```
+
+#### Deal cards event
+
+The deal cards event appends the cards to the hand of the player
 
 Deal cards event
 ```js
@@ -126,6 +134,8 @@ socket.on('deal cards', (cards, turn) => {
     });
 })
 ```
+
+
 
 Show played card event
 ```js
