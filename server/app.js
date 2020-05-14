@@ -94,11 +94,13 @@ function next_turn(obj, socket){
   
   const players = obj.pid.filter(id => id !== 0)
 
+  const playerList = obj.playerList.filter(player => player.id !== '')
+
   obj.turn = ++obj.currentTurn % players.length
 
   console.log('its, this players turn now : ', players[obj.turn])
 
-  socket.to(players[obj.turn]).emit('your turn', `it's your turn ${players[obj.turn]}`)
+  socket.to(players[obj.turn]).emit('your turn', `it's your turn ${playerList[obj.turn].name}`)
 
 }
 
@@ -199,7 +201,8 @@ app
       toeper.multiplier++
       // console.log(toeper)
 
-      socket.to(room).emit('toep popup', msg);
+
+      socket.to(room).emit('toep popup', `${toeper.name} toept, ga je mee?`);
       
 
       // console.log(toeper)
@@ -492,19 +495,15 @@ app
 
           const shuffledCards = await shuffleCards(games[room].deck.deck_id)
 
-          // console.log(shuffledCards)
-          // console.log(':::::::::NEWCARDS:::::::::::::: ', shuffledCards)
+
 
           const newCards = await Api.drawCards(shuffledCards.deck_id, 4)
-
-          // console.log('New cards: ', newCards)
-
 
           const transformedNewCards = Data.transformCardValues(newCards)
 
           console.log(transformedNewCards)
 
-            io.to(socket.id).emit("deal cards", transformedNewCards)
+            await io.to(socket.id).emit("deal cards", transformedNewCards)
 
             socket.to(games[room].pid[0]).emit('your turn', 'first turn is for you')
         })
