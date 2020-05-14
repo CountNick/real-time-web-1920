@@ -6,6 +6,9 @@
 ## Introduction
 Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wist ik dan ook eindelijk wat mijn concept zou moeten zijn, een potje tjoep natuurlijk! Omdat het tijdens deze moeilijke tijden van corona niet altijd mogelijk is bij elkaar over de vloer te gaan dacht ik dat het leuk en bruikbaar zou zijn om zelf een online toep spel te maken.
 
+![Game](https://user-images.githubusercontent.com/47485018/81941558-44aff900-95f9-11ea-820e-106d353d4a01.png)
+
+
 ## Contents
 
 * ### [Game rules](https://github.com/CountNick/real-time-web-1920#game-rules-1)
@@ -69,6 +72,63 @@ there is an array for each gameroom stored on the server, each game in said arra
 
 
 ## Realtime events
+
+### Client side
+
+**Emitters**
+```js
+socket.emit('send-nickname', nickname.value)
+socket.emit('room', button.value)
+socket.emit('join toep', currentRoom)
+socket.emit('fold toep', currentRoom)
+socket.emit('next round', currentRoom)
+socket.emit('clicked card', foundCard, cards, currentRoom)
+socket.emit('play', currentRoom)
+socket.emit('toep', 'er word getoept', currentRoom)
+```
+
+
+**Listeners**
+```js
+socket.on('full', (msg) => {})
+socket.on('player', (msg, name) => {})
+socket.on('your turn', (msg) => {})
+socket.on('toep popup', (msg) => {})
+socket.on('deal cards', (cards, turn) => {})
+socket.on('show played card', (card, cards) => {})
+socket.on('game over', (msg) => {})
+socket.on('points', (number) =>{})
+socket.on('started already', (msg) => {})
+```
+
+### Server side
+
+**Emitters**
+```js
+socket.to(players[obj.turn]).emit('your turn', `it's your turn ${playerList[obj.turn].name}`)
+socket.emit('full', 'This room is full', room)
+socket.emit('started already', 'already started playing')
+socket.emit('player', { playerId, players, room}, player.name)
+socket.broadcast.emit('play', room)
+io.to(playerId).emit("deal cards", transformedCards)
+socket.to(room).emit('toep popup', `${toeper.name} toept, ga je mee?`)
+io.to(toepFolder.id).emit('points', toepFolder.points)
+io.in(room).emit("game over", `${winner.name}, won this game. Get ready for the next one!`)
+io.in(room).emit("show played card", playedCard)
+io.to(player.id).emit('points', player.points)
+```
+
+**Listeners**
+```js
+socket.on("send-nickname", (nickname) => {})
+socket.on('room', async(room) => {})
+socket.on('play', (room) => {})
+socket.on('toep', (msg, room) => {})
+socket.on('join toep', (room) => {})
+socket.on('fold toep', (room) => {})
+socket.on("clicked card", async (playedCard, cards, room) => {})
+socket.on("next round", async(room) => {})
+```
 
 ### Setup events
 
