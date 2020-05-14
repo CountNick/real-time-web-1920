@@ -1,15 +1,18 @@
-# Toepen
+# Tjoep!
+
+![Tjoep](https://user-images.githubusercontent.com/47485018/81940728-2f869a80-95f8-11ea-9786-f4650e0de2c1.png)
+
 
 ## Introduction
 Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wist ik dan ook eindelijk wat mijn concept zou moeten zijn, een potje tjoep natuurlijk! Omdat het tijdens deze moeilijke tijden van corona niet altijd mogelijk is bij elkaar over de vloer te gaan dacht ik dat het leuk en bruikbaar zou zijn om zelf een online toep spel te maken.
 
 ## Contents
 
-* ### [Game rules]()
-* ### [Data lifecycle]()
-* ### [Data stored]()
-* ### [Real Time events]()
-* ### [API Used]()
+* ### [Game rules](https://github.com/CountNick/real-time-web-1920#game-rules-1)
+* ### [Data lifecycle](https://github.com/CountNick/real-time-web-1920#data-lifecycle-1)
+* ### [Data stored](https://github.com/CountNick/real-time-web-1920#data-stored-1)
+* ### [Real Time events](https://github.com/CountNick/real-time-web-1920#realtime-events)
+* ### [API Used](https://github.com/CountNick/real-time-web-1920#api-used-1)
 * ### [Features]()
 * ### [Installation]()
 
@@ -260,4 +263,6 @@ async function shuffleCards(id) {
 ## Uiteindelijke keuze: Toepen
 
 Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wist ik dan ook eindelijk wat mijn concept zou moeten zijn, een potje tjoep natuurlijk!
+
+## Installation
 
