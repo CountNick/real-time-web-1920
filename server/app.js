@@ -288,22 +288,7 @@ app
             next_turn(games[room], socket)
           }
 
-          // else if(values.every(value => firstCardPlayed(value.length)) === false && players[turn].id !== socket.id){
-          //   console.log('SOCKET ID COMP FALSE')
 
-          //   next_turn2(socket, cards)
-          // }
-          
-          // if(values.every(value => secondCardPlayed(value.length)) === false && players[turn].id === socket.id){
-          //   // console.log('oeeelaaaala: ', players[turn].id)
-          //   // players[turn].myTurn = true
-          //   // socket.emit('make cards clickable')
-          //   next_turn(socket, cards)
-          // }
-
-          // next_turn(socket)
-          
-          
 
           function findRoundWinner(firstCardValue, findCardFunction, cardsArray, arrNumber){          
   

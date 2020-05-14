@@ -7,7 +7,7 @@ Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wis
 
 * ### [Game rules]()
 * ### [Data lifecycle]()
-* ### [Data stored]
+* ### [Data stored]()
 * ### [Real Time events]()
 * ### [API Used]()
 * ### [Features]()
@@ -30,6 +30,40 @@ If you get 4 cards that aren't numbers you can call 'vuile was'. If no one decid
 ## Data lifecycle
 
 ![DLS](https://user-images.githubusercontent.com/47485018/81064952-e5583780-8eda-11ea-834e-0229f440116d.png)
+
+## Data stored
+
+there is an array for each gameroom stored on the server, each game in said array looks like this:
+
+```js
+{players: 0 , pid: [0, 0, 0, 0], deck: {}, started: false, turn: 0, currentTurn: 0, playerList: [...]
+```
+
+* players: the number of players in the room
+* pid: an array which gets filled with the socket id's that have entered the room
+* deck: this is an object which will hold the card deck which is fetched from the deck of cards api
+* started: a boolean to indicate whether the gameroom already started
+* turn and currentTurn: these will hold the turn index of the player who's turn it is
+* playerList array: the playerList array holds all player objects. The objects look like this:
+
+```js
+    {
+      id: '',
+      name: '',
+      playedCards: [],
+      points: 0,
+      roundWinner: false,
+      multiplier: 0
+    }
+```
+
+* id: holds the socket id
+* name: holds the nickname of the player filled in at the start of the gam
+* playedCard: once a card gets played this card will be pushed into this array
+* points: holds a number which represents the point a player has
+* roundWinner: a boolean which gets set when a player wins a round
+* multiplier: if a player joins one or more toeps, these wil get added to the multiplier. At the end of the game these will be multiplied with 1 to get the amount of points
+
 
 ## Realtime events
 
