@@ -1,7 +1,7 @@
 
 const socket = io();
-
 const loginScreen = document.querySelector('.login')
+const roomFullSection = document.querySelector('.roomFull')
 const rooms = document.getElementsByName('room') 
 const chatScreen = document.querySelector('.chat')
 const loginForm = document.querySelector('.loginForm')
@@ -14,13 +14,24 @@ const gameField = document.querySelector('.gameField')
 const turn = document.querySelector('.turn')
 const startButton = document.querySelector('.start')
 const toepButton = document.querySelector('.toep')
+const toepMessage = document.querySelector('.toepMessage')
+const joinToepButton = document.querySelector('.joinToep')
+const foldToepButton = document.querySelector('.foldToep')
+const leaveButton = document.querySelector('.leave')
+const popup = document.getElementById('myModal')
+let players;
+let currentRoom;
+let points = 0;
+let noti;
+let myCards;
+
+console.log(joinToepButton)
+
+
 
 startButton.disabled = true
 // const room = 'game'
-const leaveButton = document.querySelector('.leave')
-let noti;
 
-let myCards;
 
 console.log(rooms)
 
@@ -35,6 +46,8 @@ loginForm.addEventListener('submit', (event) => {
     rooms.forEach(button => {
         if(button.checked === true){
             socket.emit('room', button.value)
+            currentRoom = button.value
+            
         }
     
     })
@@ -48,44 +61,34 @@ loginForm.addEventListener('submit', (event) => {
     
 })
 
+// socket.on('send start signal', (mdg, cards) => {
+//     console.log(mdg)
 
-// chatForm.addEventListener('submit', (event) => {
-//     event.preventDefault()
+//     startButton.disabled = false
 
-//     if(message.value != ''){
-//     appendMessage(`You: ${message.value}`, 'yourMessage')
-//     socket.emit('chat message', message.value)
-//     message.value = ''
-//     }
+//     startButton.addEventListener('click', startGame)
+//     // socket.emit('pass turn')
+// })
+
+socket.on('full', (msg) => {
+    roomFullSection.style.display = 'block'
+    gameField.style.display = 'none'
+})
+
+socket.on('player', (msg) => {
+    players = msg.players
+
+    turn.innerHTML = 'Player ' + players
+
+    if(players >= 2){
     
-// })
-
-
-// socket.on('chat message', (msg) => {
-//     appendMessage(msg, 'incomingMessage')
-// })
-
-// socket.on('user connected', (nickname) => {
-//     appendMessage(nickname, 'serverNotification')
-// })
-
-// socket.on('server message', (msg) => {
-//     appendMessage(msg, 'serverMessage')
-// })
-
-// socket.on('challenge', (word) => {
-//     console.log(word)
-//     appendMessage(word, 'serverMessage')
-// })  
-
-
-socket.on('send start signal', (mdg, cards) => {
-    console.log(mdg)
-
     startButton.disabled = false
-
+    
     startButton.addEventListener('click', startGame)
-    // socket.emit('pass turn')
+
+    }
+
+    console.log(players)
 })
 
 socket.on('your turn', (msg) => {
@@ -94,13 +97,15 @@ socket.on('your turn', (msg) => {
     noti = msg
 
     turn.textContent = noti
-
+    
     // console.log('kaarta', myCards)
 
     
     //event listener should be place here
 
     const cardsInHand = document.querySelectorAll('.card')
+
+    console.log(cardsInHand)
 
     //when card is clicked a broadcast to everyplayer needs to be sent
     // cardsInHand.forEach(card => card.addEventListener("mousedown", _listener, true))
@@ -121,19 +126,34 @@ socket.on('your turn', (msg) => {
 
 })
 
-toepButton.addEventListener('click', () => socket.emit('toep', 'er word getoept'))
+toepButton.addEventListener('click', () => socket.emit('toep', 'er word getoept', currentRoom))
+
+socket.on('toep popup', (msg) => {
+    // console.log(msg)
+    // alert(msg)
+
+    popup.style.display = "block";
+    toepMessage.textContent = msg
+
+    joinToepButton.addEventListener('click', () => {
+
+        socket.emit('join toep', currentRoom)
+        popup.style.display = "none";
+    })
+    
+    foldToepButton.addEventListener('click', () => {
+
+        socket.emit('fold toep', currentRoom)
+        popup.style.display = "none";
+    })
+})
 
 
 socket.on('deal cards', (cards, turn) => {
     // socket.on('pass turn', (player) => console.log('rukkeee:', player))
 
-    
-    console.log('caards: ', cards)
     myCards = cards
     
-    console.log('my turn: ', turn)
-    // console.log('playa: ', playa)
-
     cards.cards.forEach(card => {
         
         appendCard(cardsSection, card.image, 'card')
@@ -156,15 +176,23 @@ socket.on('winner', (winner) => {
 
     console.log('the winner is: ', winner)
 
+ 
+
     // appendMessage(winner, 'winnerMessage')
 })
 
-socket.on('round over', (msg) => {
+socket.on('game over', (msg) => {
     // gameField.innerHTML = ''
 
     gameField.innerHTML = ''
+    cardsSection.innerHTML = ''
+    console.log(msg)
 
-    socket.emit('next round')
+    // popup.style.display = "block";
+    // toepMessage.textContent = msg
+
+    socket.emit('next round', currentRoom)
+    
     
 })
 
@@ -202,13 +230,9 @@ function findCard(ev, cards){
 
     const foundCard = findCardInArray(cards, clickedCard)
 
-    
-    // let findCard = cards.cards.find(card => card.image === clickedCard)
-    // console.log('foundCard : ', foundCard)
-    socket.emit('pass turn')
+    socket.emit('clicked card', foundCard, cards, currentRoom)
 
-
-    socket.emit('clicked card', foundCard, cards)
+    turn.textContent = ''
   
 
     ev.remove()
@@ -222,7 +246,7 @@ function findCardInArray(array, cardToBeFound){
 }
 
 function startGame(){
-    socket.emit('start game', 'you can start playing now')
+    socket.emit('play', currentRoom)
     startButton.removeEventListener('click', startGame);
     startButton.disabled = true
 }

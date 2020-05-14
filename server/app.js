@@ -18,33 +18,54 @@ nunjucks.configure(`${__dirname}/view/pages`, {
 // Api.getNewCardDeck()
 //     .then(getNewCardDeck => gameMaker(getNewCardDeck));
 
-const players = [];
-let currentRoom;
-let currentTurn = 0;
-let turn = 0;
-let connectCounter = 0;
-let cardDeck
-let arrayfiedClientList
+let games = Array(4);
+
+async function fillGamesArray(){
+for (let i = 0; i < 4; i++) {
+  games[i] = {players: 0 , pid: [0 , 0, 0, 0], deck: {}, started: false, turn: 0, currentTurn: 0, toeps: 0, playerList: [
+    {
+      id: '',
+      name: '',
+      playedCards: [],
+      points: 0,
+      roundWinner: false,
+      multiplier: 0
+    },
+    {
+      id: '',
+      name: '',
+      playedCards: [],
+      points: 0,
+      roundWinner: false,
+      multiplier: 0
+    },
+    {
+      id: '',
+      name: '',
+      playedCards: [],
+      points: 0,
+      roundWinner: false,
+      multiplier: 0
+    },
+    {
+      id: '',
+      name: '',
+      playedCards: [],
+      points: 0,
+      roundWinner: false,
+      multiplier: 0
+    },
+  ]};
+  games[i].deck = await Api.getNewCardDeck()
+}
+}
+
+fillGamesArray()
 
 function countInArray(array, what) {
   return array.filter(item => item == what).length;
 }
 
-async function dealCards(id){
-
-  const drawnCards = await Api.drawCards(id, 4);
-
-  const transformedCards = Data.transformCardValues(drawnCards)
-
-
-  // console.log('drawnCAAAARDSS: ', transformedCards)
-
-  // // findPlayer(players, socket.id).cardsInHand.push(drawnCards)
-
-  // // every client draws 4 cards at start of the game
-  return transformedCards
-
-}
 
 async function shuffleCards(id){
   const shuffledCards = await Api.shuffleCards(id)
@@ -68,40 +89,17 @@ function thirdCardPlayed(arrLength){
   return arrLength === 3;
 }
 
-function next_turn(socket, cards){
-
-  // console.log('NEXT TURN FUNCTION PLAYER LIST: ', arrayfiedClientList)
+function next_turn(obj, socket){
 
   
+  const players = obj.pid.filter(id => id !== 0)
 
-  turn = ++currentTurn % arrayfiedClientList.length
-  // client.emit('your turn', "it's your turn sonny")
-  // io.to(socketId).emit('your turn', "it's your turn sonny")
+  obj.turn = ++obj.currentTurn % players.length
 
-  const nextPlayer = findPlayer(players, arrayfiedClientList[turn])
+  console.log('its, this players turn now : ', players[obj.turn])
 
-  console.log('next turn is for: ', nextPlayer)
-  // emit only to next player
-  
-  console.log("====================next turn triggered: ==========================",turn)
+  socket.to(players[obj.turn]).emit('your turn', `it's your turn ${players[obj.turn]}`)
 
-  socket.to(nextPlayer.id).emit('your turn', `it's your turn ${nextPlayer.name}`, cards)
-
-  // emit a message to all other 
-}
-function next_turn2(socket, cards){
-
-  turn = --currentTurn % players.length
-  // client.emit('your turn', "it's your turn sonny")
-  // io.to(socketId).emit('your turn', "it's your turn sonny")
-
-  // emit only to next player
-  
-  console.log("====================next turn triggered: ==========================",turn)
-
-  socket.to(players[turn].id).emit('your turn', `it's your turn ${players[turn].name}`, cards)
-
-  // emit a message to all other 
 }
 
 function findHighestCard(arr){
@@ -135,11 +133,13 @@ app
   io.on("connection", async (socket) => {
     //step1: first make a room
     // console.log('soccket: ', socket)
+    const playerId = socket.id
+
+    console.log(playerId + ' connected');
+
     socket.on("send-nickname", nickname => {
       // Taking turns
-      players.push({ id: socket.id, name: nickname, playedCards: [], points: 0, roundWinner: false});
-
-      console.log('playaHatazz: ', players)
+      // players.push({ id: socket.id, name: nickname, playedCards: [], points: 0, roundWinner: false});
       // console.log(users)
 
       socket.on('room', async(room) => {
@@ -148,101 +148,126 @@ app
 
         socket.join(room)
 
-        currentRoom = room
-
-        findPlayer(players, socket.id).room = currentRoom
         
-        console.log('players with Room: ', players)
+        if (games[room].players < 4) {
+          games[room].players++;
+          games[room].pid[games[room].players - 1] = playerId;
+          games[room].playerList[games[room].players - 1].id = playerId
+          games[room].playerList[games[room].players - 1].name = nickname
+      } // else emit the full event
+      else{
+        socket.emit('full', 'This room is full', room)
+        return;
+    }
+     console.log(games[room]);
+    players = games[room].players
 
-        // if 4 clients in the room make a new room
-        const numberOfClientsInRoom = io.sockets.adapter.rooms[currentRoom].length;
-        const clientList = io.sockets.adapter.rooms[currentRoom];
+    socket.emit('player', { playerId, players, room })
 
-        console.log('clients in room: ', numberOfClientsInRoom)
-        console.log('clients in room: ', Object.keys(clientList.sockets))
-
-        arrayfiedClientList = Object.keys(clientList.sockets)
-
-        if(numberOfClientsInRoom >= 2){
-          // bron: https://stackoverflow.com/questions/44661841/why-is-my-socket-io-event-firing-multiple-times
-          // socket.emit('your turn', "it's your turn")
-          
-          // io.emit('send start signal', 'game can start')
-          io.in(currentRoom).emit('send start signal', `game can start ${currentRoom}`);
-
-          cardDeck = await Api.getNewCardDeck()
-
-          
-          // console.log(drawnCards)
-          // io.to(socket.id).emit("deal cards", drawnCards);
-
-          // socket.to(arrayfiedClientList[0]).emit('your turn', `it's your turn ${players[turn].name}`)
-
-          
-  
-          }
       })
+    })
+    
+    socket.on('play', (room) => {
+  
+      socket.broadcast.emit('play', room);
+      console.log("ready " + room);
+      let players = games[room].pid.filter(id => id !== 0)
+
+      async function deal(){
+
+      for(const [index, playerId] of players.entries()){
+        // const drawnCards = await Api.drawCards(games[room].deck.deck_id, 4)
+        console.log('for of loop: ', index, playerId)
+        
+        const drawnCards = await Api.drawCards(games[room].deck.deck_id, 4)
+
+        const transformedCards = Data.transformCardValues(drawnCards)
+        
+        io.to(playerId).emit("deal cards", transformedCards);
+
+      }
+      // next_turn(games[room], socket)
+      socket.to(players[0]).emit('your turn', 'first turn is for you')
+    }
+      deal()
+
+
+    })
+
+    socket.on('toep', (msg, room) => {
+      const toeper = findPlayer(games[room].playerList, socket.id)
+      toeper.multiplier++
+      // console.log(toeper)
+
+      socket.to(room).emit('toep popup', msg);
+      
+
+      // console.log(toeper)
+    })
+
+    socket.on('join toep', (room) => {
+
+      const toepJoiner = findPlayer(games[room].playerList, socket.id)
+
+      toepJoiner.multiplier++
+
+    })
+
+    socket.on('fold toep', (room) => {
+      const toepFolder = findPlayer(games[room].playerList, socket.id)
+
+      toepFolder.roundWinner = false
+
+      const players = games[room].playerList.filter(player => player.name !== '')
+
+      
+
+      toepFolder.points++
+
+      if(players.length === 2){
+
+        const winner = players.find(player => player.id !== toepFolder.id)
+
+        players.map(player => {
+          player.multiplier = 0
+          player.roundWinner = false
+        })
+
+        io.in(room).emit("game over", `${winner.name}, won this game. Get ready for the next one!`)
+
+      }
+
     })
 
 
-        
-
-        // // every client draws 4 cards at start of the game
-        // io.to(socket.id).emit("deal cards", drawnCards);
-
-        socket.on('start game', async(msg) => {
-          // console.log(msg)
-
-          // cardDeck = await Api.getNewCardDeck()
-
-          // console.log('start game function: ', cardDeck)
-
-          // const drawnCards = await dealCards(cardDeck.deck_id)
-          const drawnCards = await dealCards(cardDeck.deck_id)
-          console.log(drawnCards)
-
-          io.to(socket.id).emit("deal cards", drawnCards);
-
-          console.log('aaaFIEFKSWLEFKWSEFKWEF', arrayfiedClientList)
-
-          const firstPlayer = findPlayer(players, arrayfiedClientList[0])
-          
-          console.log('finsKAKAKA', firstPlayer)
-
-          const currentPlayer = findPlayer(players, socket.id)
-          console.log('currennnetPlaayer: ', currentPlayer)
-
-          next_turn(socket)
-          // socket.to(currentPlayer.room).emit('your turn', `You can do the first turn`)
-        })
-        
-        
-        
-        // io.to(socket.id).emit("deal cards", drawnCards);
-
-        socket.on("clicked card", async (playedCard, cards) => {
+        socket.on("clicked card", async (playedCard, cards, room) => {
           //logs the card that has been played
           //in order to erase the card from the deck this card has to be found in the card deck
 
-          console.log('playedCard: ', playedCard)
+          // i need the room number
+          // socket id
+          let players = games[room].playerList.filter(player => player.id !== '')
+          
 
           const player = findPlayer(players, socket.id)
 
+          
+
           player.playedCards.push(playedCard)
+
+          io.in(room).emit("show played card", playedCard);
+
+          console.log('PLAYAA: ', player)
 
 
           let values = findHighestCard(players)
 
-          values.map(value => console.log('VALUE LENGTHHH', value.length))
-          values.every(value => console.log('THE TRUTH: ', firstCardPlayed(value.length)))
-          // console.log('turn === socket id: ', players[turn].id === socket.id)
-
-
+          console.log(values)
           
-          if(values.every(value => firstCardPlayed(value.length)) === false && values.every(value => secondCardPlayed(value.length)) === false && values.every(value => thirdCardPlayed(value.length)) === false){
+          if(values.every(value => firstCardPlayed(value.length)) === false && values.every(value => secondCardPlayed(value.length)) === false){
             console.log('SOCKET ID COMP FALSE NUMER 1111111111')
 
-            next_turn(socket, cards)
+            next_turn(games[room], socket)
           }
 
           // else if(values.every(value => firstCardPlayed(value.length)) === false && players[turn].id !== socket.id){
@@ -325,6 +350,7 @@ app
         let firstRoundWinner
         let secondRoundWinner
         let thirdRoundWinner
+        let fourthRoundWinner
 
 
 
@@ -341,20 +367,25 @@ app
 
           const firstPlayedCards = values.map(card => card[0])
 
+          console.log(values[0][0])
+
           firstRoundWinner = findRoundWinner(values[0][0], firstCardPlayed, firstPlayedCards, 0)
           console.log("Round 1 WINNERRR", firstRoundWinner)
           io.to(firstRoundWinner.id).emit('your turn', `You won this round!!`)
         }
         
-        if(players.length === 2 && values.every(value => firstCardPlayed(value.length)) === false && values.every(value => secondCardPlayed(value.length)) === false && values.every(value => thirdCardPlayed(value.length)) === false){
-          console.log('SOCKET ID COMP false NRRR 222222')
+        if(players.length === 2 && players.every(player => firstCardPlayed(player.playedCards.length)) === false && players.every(player => secondCardPlayed(player.playedCards.length)) === false && players.every(player => thirdCardPlayed(player.playedCards.length)) === false ){
 
-          next_turn(socket, cards)
+          //&& games[room].pid[games[room].turn] === players[games[room].turn].id
+          console.log('SOCKET ID COMP false NRRR 222222')
+          console.log(games[room].pid[games[room].turn])
+          console.log(players[games[room].turn].id)
+          next_turn(games[room], socket)
         }
-        if(players.length > 2 && values.every(value => firstCardPlayed(value.length)) === false && values.every(value => secondCardPlayed(value.length)) === false && values.every(value => thirdCardPlayed(value.length)) === false && arrayfiedClientList[turn] === socket.id){
+        if(players.length > 2 && players.every(player => firstCardPlayed(player.playedCards.length)) === false && players.every(player => secondCardPlayed(player.playedCards.length)) === false && players.every(player => thirdCardPlayed(player.playedCards.length)) === false && games[room].pid[games[room].turn] === socket.id){
           console.log('SOCKET ID COMP false NRRR 222222')
 
-          next_turn(socket, cards)
+          next_turn(games[room], socket)
         }
         
         console.log('2 cards have been played by every player', values.every(value => secondCardPlayed(value.length)) === true)
@@ -425,85 +456,68 @@ app
 
             console.log('4th card: ', fourthPlayedCards)
 
-            // const values = findHighestCard(players)
+            const lastRoundWinner = findLastRoundWinner(players, true)
 
-            // console.log('fereereerre', values)
+            const latsPlayedCardRoundWinner = lastRoundWinner.playedCards[3]
 
-            // const maxRow = values.map( (row) => row.pop());
+            const cardToCheck = fourthPlayedCards.find(card => card.suit === latsPlayedCardRoundWinner.suit && card.value === latsPlayedCardRoundWinner.value)
 
-            // //this finds the highest lat played card
-            // const winningValue = Math.max.apply(null, maxRow)
-
-            // //Find the player that played the winning value card
-
-            // //step 1 players.find(player => player.playedCards.pop() === same as highest vlaue)
-            // const winner = players.find(player => player.playedCards[3].value === winningValue)
-            // const losers = players.filter(player => {
-            //   if(player !== winner) player.points++
-            // })
+            console.log('THE CARD THAT SHOULD BE CHECKED FIRST ::::', cardToCheck)
 
 
-            
-            
-            console.log(":::::::::::::::::::::WINNER::::::::::::::::::::", winner)
-            console.log(":::::::::::::::::::::NOT-WINNER::::::::::::::::::::: ", losers)
+            fourthRoundWinner = findRoundWinner(cardToCheck, allCardsPlayed, fourthPlayedCards, 3)
+            console.log("Round 4 WINNERRR", fourthRoundWinner)
 
+            fourthRoundWinner.multiplier = 0
 
-            // io.in("game").emit("winner", winner.name)
+            const losers = players.filter(players => players.id !== fourthRoundWinner.id)
+
+            losers.map(loser => {
+              loser.points = loser.points + 1 + loser.multiplier
+              loser.multiplier = 0
+            })
+
+            console.log(players)
+
+            io.in(room).emit("game over", `${fourthRoundWinner.name}, won this game. Get ready for the next one!`)
 
             players.forEach(player => player.playedCards = [])
 
-            
-
-            io.in(winner.room).emit("round over", 'get ready for the next round')
-
           }
 
-          const toBeRemovedFromHand = cards.cards.findIndex(
-            card => card.code == playedCard.code
-          );
-
-
-          cards.cards.splice(toBeRemovedFromHand, 1);
-
-          const thisRoom = findRoom(players, socket.id, currentRoom)
-
-
-          io.in(player.room).emit("show played card", playedCard);
-          // io.to(socket.id).emit('drawn card', drawnCard.cards[0], cards);
         });
 
 
-        socket.on("next round", async() => {
+        socket.on("next round", async(room) => {
 
-          const shuffledCards = await shuffleCards(deck.deck_id)
+          const shuffledCards = await shuffleCards(games[room].deck.deck_id)
 
+          // console.log(shuffledCards)
           // console.log(':::::::::NEWCARDS:::::::::::::: ', shuffledCards)
 
-          const newCards = await Api.drawNewCards(shuffledCards.deck_id)
+          const newCards = await Api.drawCards(shuffledCards.deck_id, 4)
 
-          // console.log('newwwwwcardsssszz: ', newCards)
+          // console.log('New cards: ', newCards)
+
 
           const transformedNewCards = Data.transformCardValues(newCards)
 
-          // setTimeout(() => {
+          console.log(transformedNewCards)
+
             io.to(socket.id).emit("deal cards", transformedNewCards)
-          // }, 5000)
 
-          if(players[turn].id === socket.id){
-            // bron: https://stackoverflow.com/questions/44661841/why-is-my-socket-io-event-firing-multiple-times
-            socket.emit('your turn', "it's your turn FUCKER")
-    
-            }
-
+            socket.to(games[room].pid[0]).emit('your turn', 'first turn is for you')
         })
 
-    socket.on('disconnect', function(reason){
-      console.log('A player disconnected, ', reason);
-      players.splice(players.indexOf(socket),1);
-      turn--;
-      console.log("A number of players now ",players.length);
-    });
+    // when the user disconnects from the server, remove him from the game room
+  socket.on('disconnect', () => {
+  for (let i = 0; i < 4; i++) {
+      if (games[i].pid[0] == playerId || games[i].pid[1] == playerId)
+          games[i].players--;
+  }
+  console.log(playerId + ' disconnected');
+ 
+ });
 
   });
 // }

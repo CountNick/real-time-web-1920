@@ -21,19 +21,19 @@
         
         
         <label for="Gameroom 1">Gameroom 1
-          <input type="radio" id="Gameroom 1" name="room" value="Gameroom 1">
+          <input type="radio" id="Gameroom 1" name="room" value="0">
         </label>
         
         <label for="Gameroom 2">Gameroom 2
-          <input type="radio" id="Gameroom 2" name="room" value="Gameroom 2">
+          <input type="radio" id="Gameroom 2" name="room" value="1">
         </label>
 
         <label for="Gameroom 3">Gameroom 3
-          <input type="radio" id="Gameroom 3" name="room" value="Gameroom 3">
+          <input type="radio" id="Gameroom 3" name="room" value="2">
         </label>
 
         <label for="Gameroom 4">Gameroom 4
-          <input type="radio" id="Gameroom 4" name="room" value="Gameroom 4">
+          <input type="radio" id="Gameroom 4" name="room" value="3">
         </label>
 
         <input type="submit" value="Enter room">
@@ -42,14 +42,12 @@
         
         </section>
 
-        <section class="chat">
-        <ul id="messages"></ul>
-        <form class="chatForm" action="">
-          <input id="message" autocomplete="off" /><button>Send</button>
-        </form>
+        <section class="roomFull">
+          <h1>Sorry this room is full, please go back and choose another one</h1>
         </section>
        
         <section class="gameField">
+          <h1 class="turn"></h1>
 
         </section>
        
@@ -57,12 +55,27 @@
         </section>
         
         <section class="playerInfo">
-          <h1 class="turn"></h1>
+          
           <h1 class="points"></h1>
           <button class="start">Start game</button>
           <button class="leave">Leave game</button>
           <button class="toep">Toep</button>
         </section>
+
+        <!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <!-- <span class="close">&times;</span> -->
+    <p class="toepMessage"></p>
+
+    <button class="foldToep">Ga niet mee</button>
+    <button class="joinToep">Ga mee</button>
+
+  </div>
+
+</div>
 
         <script src="/js/client.js"></script>
 
