@@ -176,199 +176,91 @@ socket.on('started already', (msg) => {})
 **Emitters**
 ```js
 socket.to(players[obj.turn]).emit('your turn', `it's your turn ${playerList[obj.turn].name}`)
+//Emits the your turn event to the player who's turn it is
 ```
 
 ```js
 socket.emit('full', 'This room is full', room)
+//Emits a message to the player when the room said player is trying to join is full
 ```
 
 ```js
 socket.emit('started already', 'already started playing')
+//Emits a message to the payer when a gameroom has started already
 ```
 
 ```js
 socket.emit('player', { playerId, players, room}, player.name)
+//Emits the neccessary player information to the player
 ```
 
 ```js
 socket.broadcast.emit('play', room)
+//When there are 2 or more sockets in the room this event gets emitted, and a player can press the start game button which will start the game
 ```
 
 ```js
 io.to(playerId).emit("deal cards", transformedCards)
+//Will emit the cards to each player
 ```
+
 ```js
 socket.to(room).emit('toep popup', `${toeper.name} toept, ga je mee?`)
+//This event gets emitted to when a player presses the toep button. He can choose to join or fold
 ```
 ```js
 io.to(toepFolder.id).emit('points', toepFolder.points)
+//When a player folds the points will be emitted to said player
 ```
 
 ```js
 io.in(room).emit("game over", `${winner.name}, won this game. Get ready for the next one!`)
+//When a round is over this event will be emitted to all clients in the room
 ```
 
 ```js
 io.in(room).emit("show played card", playedCard)
+//This will emit the played card to the room, which will then get appended in the game section for every player to see
 ```
 
 ```js
 io.to(player.id).emit('points', player.points)
+//Emits the points to each player at game over
 ```
 
 **Listeners**
 ```js
 socket.on("send-nickname", (nickname) => {})
+//Will listen to the send nickname event, the nickname will get added to the player object
+```
+```js
 socket.on('room', async(room) => {})
+//Will emit the chosen room to join to the server. This number will be used as an index to emit to the right gameroom
+```
+```js
 socket.on('play', (room) => {})
+//Will deal the cards to each player and start the game
+```
+```js
 socket.on('toep', (msg, room) => {})
+//Hanldes the toep event when a socket clicks the toep button, it will emit the toep popup event to each socket except sender
+```
+```js
 socket.on('join toep', (room) => {})
+//When a player joins the toep the multiplier value will increase by one for the toeper and the one that joined
+```
+```js
 socket.on('fold toep', (room) => {})
+//when a player folds he'll get a point immedeately. When there are just two players this will trigger the next round. If there are more players only the players that joined can play further this round.
+```
+```js
 socket.on("clicked card", async (playedCard, cards, room) => {})
+//On this event the gamelogic will check wo played the last card. The clicked card will also be added to the plyedCard array of the player.
+```
+```js
 socket.on("next round", async(room) => {})
+//This event will shuffle the deck that belongs to the room, and will deal new cards to all players in the room. the next round is now started
 ```
-
-### Setup events
-
-#### Send nickname event
-
-This event sends out the nickname a user fills in before starting the game.
-
-```js
-socket.emit('send-nickname', nickname.value)
-```
-
-#### The room event
-
-Before starting the game players need to choose a room they want to play in
-
-```js
-socket.emit('room', button.value)
-```
-
-#### Send start signal
-
-Whem theres a minimum of two players in a room, the start signal gets emitted from the server to the clients. 
-This makes the start game button clickable for all players in the room.
-
-```js
-socket.on('send start signal', (mdg, cards) => {
-
-    startButton.disabled = false
-
-    startButton.addEventListener('click', startGame)
-})
-```
-
-### Game events
-
-#### Your turn event
-
-Whenever a player has played it's turn a function on the server is fired ot determine who's turn it is next. After determining who's turn it is the your turn event gets emitted to the socket next in line
-
-```js
-socket.on('your turn', (msg) => {
-    noti = msg
-
-    turn.textContent = noti
-
-    const cardsInHand = document.querySelectorAll('.card')
-
-    const onClick = function() {
-        findCard(this, myCards)
-        // console.log(this)
-        cardsInHand.forEach(card => {
-          card.removeEventListener('click', onClick);
-        });
-      };
-      
-      cardsInHand.forEach(card => {
-        card.addEventListener('click', onClick);
-      });
-
-})
-```
-
-#### Clicked card event
-
-The clicked card emits to the server which card was clicked, on the server the socket ewho played the card gets added to the played cards object of the rigt players
-```js
-socket.emit('clicked card', foundCard, cards)
-```
-
-#### Toep events
-
-When a player clicks the toepbutton the toep event get send. This event emits a toep popup event to every socket except the sender
-
-```js
-toepButton.addEventListener('click', () => socket.emit('toep', 'er word getoept'))
-```
-
-Toep popup event
-```js
-socket.on('toep popup', (msg) => {
-    popup.style.display = "block";
-    toepMessage.textContent = msg
-})
-```
-
-#### Deal cards event
-
-The deal cards event appends the cards to the hand of the player
-
-Deal cards event
-```js
-socket.on('deal cards', (cards, turn) => {
-
-    myCards = cards
-
-    cards.cards.forEach(card => {
-        
-        appendCard(cardsSection, card.image, 'card')
-        
-    });
-})
-```
-
-
-
-Show played card event
-```js
-socket.on('show played card', (card, cards) => {
-
-    appendCard(gameField, card.image, 'playedCard')
-
-})
-```
-
-Winner event
-```js
-socket.on('winner', (winner) => {
-
-    console.log('the winner is: ', winner)
-
-})
-```
-
-Round over event
-```js
-socket.on('round over', (msg) => {
-    // gameField.innerHTML = ''
-
-    gameField.innerHTML = ''
-
-    socket.emit('next round')
-    
-})
-```
-
-Round winner event
-```js
-socket.on('round winner', (msg) => {
-    console.log(msg)
-})
-```
-
 
 ## API used
 
