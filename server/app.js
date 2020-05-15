@@ -9,6 +9,7 @@ const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 const Api = require("./modules/api.js");
 const Data = require("./modules/data.js")
+const Game = require("./modules/game.js")
 
 nunjucks.configure(`${__dirname}/view/pages`, {
     autoescape: true,
@@ -62,9 +63,6 @@ for (let i = 0; i < 4; i++) {
 
 fillGamesArray()
 
-function countInArray(array, what) {
-  return array.filter(item => item == what).length;
-}
 
 
 async function shuffleCards(id){
@@ -120,10 +118,6 @@ function findPlayer(array, socketId){
 
 function findLastRoundWinner(array, bool){
   return array.find(player => player.roundWinner == bool);
-}
-
-function findRoom(array, socketId, room){
-  return array.find(player => player.id == socketId && player.room === room);
 }
 
 
@@ -279,7 +273,7 @@ app
 
           console.log(values)
           
-          if(values.every(value => firstCardPlayed(value.length)) === false && values.every(value => secondCardPlayed(value.length)) === false){
+          if(values.every(value => firstCardPlayed(value.length)) === false && values.every(value => secondCardPlayed(value.length)) === false && values.every(value => thirdCardPlayed(value.length)) === false){
             console.log('SOCKET ID COMP FALSE NUMER 1111111111')
 
             next_turn(games[room], socket)
@@ -287,65 +281,7 @@ app
 
 
 
-          function findRoundWinner(firstCardValue, findCardFunction, cardsArray, arrNumber){          
-  
-          console.log('oejejjeje', firstCardValue)
 
-          console.log(cardsArray)
-
-          let firstCard = firstCardValue //firstCardValue
-          let otherPlayerCards = cardsArray.slice(!0).flat()
-          let matchingSuits = otherPlayerCards.filter(card => card.suit === firstCard.suit)
-          let winner
-          let losers
-
-          if(players.every(player => findCardFunction(player.playedCards.length)) === true && matchingSuits.length === 0){ //findCardFunction
-            console.log("::::::::: ROUND FINISHED ::::::::::::::")
-
-              winner = players.find(player => player.playedCards[arrNumber].suit === firstCard.suit)
-
-              console.log(winner)
-
-              winner.roundWinner = true
-
-              losers = players.filter(player => player !== winner)
-
-              console.log('LOSEERS: ', losers)
-
-              losers.map(loser => loser.roundWinner = false)
-
-              
-          }
-            
-          if(players.every(player => findCardFunction(player.playedCards.length)) === true && matchingSuits.length > 0){ //findCardFunction
-
-              matchingSuits.push(firstCard)
-
-              console.log('HEt complete plaatje: ', matchingSuits)
-
-              // find de speler met de hogste kaart nu
-
-              const winningValue = Math.max.apply(Math, matchingSuits.map(card => card.value))
-
-              // now search winning card in matchingSuits
-
-              const winningCard = matchingSuits.find(card => card.value === winningValue)
-
-              console.log('The winningCarrdddd: ', winningCard)
-              
-              winner = players.find(player => player.playedCards.some(card => card.value === winningCard.value && card.suit === winningCard.suit))
-
-              losers = players.filter(player => player !== winner)
-
-              console.log('LOSEERS: ', losers)
-
-              losers.map(loser => loser.roundWinner = false)
-
-              winner.roundWinner = true
-
-          }
-          return winner
-        }
 
         let firstRoundWinner
         let secondRoundWinner
@@ -353,8 +289,6 @@ app
         let fourthRoundWinner
 
 
-
-        // console.log('VAAALUES: ', values[0][0].length, players.length)
 
         //if values.length === players.length
         console.log('VAAALUES: ', values)
@@ -369,22 +303,23 @@ app
 
           console.log(values[0][0])
 
-          firstRoundWinner = findRoundWinner(values[0][0], firstCardPlayed, firstPlayedCards, 0)
+          firstRoundWinner = Game.findRoundWinner(values[0][0], firstCardPlayed, firstPlayedCards, 0, players)
           console.log("Round 1 WINNERRR", firstRoundWinner)
           io.to(firstRoundWinner.id).emit('your turn', `You won this round!!`)
         }
         
-        if(players.length === 2 && players.every(player => firstCardPlayed(player.playedCards.length)) === false && players.every(player => secondCardPlayed(player.playedCards.length)) === false && players.every(player => thirdCardPlayed(player.playedCards.length)) === false ){
+        if(players.length === 2 && players.every(player => firstCardPlayed(player.playedCards.length)) === false && players.every(player => secondCardPlayed(player.playedCards.length)) === false && players.every(player => thirdCardPlayed(player.playedCards.length)) === false && players.every(player => allCardsPlayed(player.playedCards.length)) === false){
 
           //&& games[room].pid[games[room].turn] === players[games[room].turn].id
           console.log('SOCKET ID COMP false NRRR 222222')
           console.log(games[room].pid[games[room].turn])
           console.log(players[games[room].turn].id)
-          next_turn(games[room], socket)
+          if(games[room].pid[games[room].turn] === socket.id){
+          next_turn(games[room], socket)}
         }
         if(players.length > 2 && players.every(player => firstCardPlayed(player.playedCards.length)) === false && players.every(player => secondCardPlayed(player.playedCards.length)) === false && players.every(player => thirdCardPlayed(player.playedCards.length)) === false && games[room].pid[games[room].turn] === socket.id){
           console.log('SOCKET ID COMP false NRRR 222222')
-
+          
           next_turn(games[room], socket)
         }
         
@@ -405,7 +340,7 @@ app
           console.log('THE CARD THAT SHOULD BE CHECKED FIRST ::::', lastRoundWinner)
 
           // second played cards needs to be passed to the function
-          secondRoundWinner = findRoundWinner(cardToCheck, secondCardPlayed, secondPlayedCards, 1)
+          secondRoundWinner = Game.findRoundWinner(cardToCheck, secondCardPlayed, secondPlayedCards, 1, players)
           console.log("Round 2 WINNERRR", secondRoundWinner)
 
           //when the last round winner wins cards get played double...
@@ -434,7 +369,7 @@ app
           console.log('THE CARD THAT SHOULD BE CHECKED FIRST ::::', cardToCheck)
 
 
-          thirdRoundWinner = findRoundWinner(cardToCheck, thirdCardPlayed, thirdPlayedCards, 2)
+          thirdRoundWinner = Game.findRoundWinner(cardToCheck, thirdCardPlayed, thirdPlayedCards, 2, players)
           console.log("Round 3 WINNERRR", thirdRoundWinner)
           io.to(thirdRoundWinner.id).emit('your turn', `You won third round!!`)
         }
@@ -465,7 +400,7 @@ app
             console.log('THE CARD THAT SHOULD BE CHECKED FIRST ::::', cardToCheck)
 
 
-            fourthRoundWinner = findRoundWinner(cardToCheck, allCardsPlayed, fourthPlayedCards, 3)
+            fourthRoundWinner = Game.findRoundWinner(cardToCheck, allCardsPlayed, fourthPlayedCards, 3, players)
             console.log("Round 4 WINNERRR", fourthRoundWinner)
 
             fourthRoundWinner.multiplier = 0

@@ -158,6 +158,8 @@ button{
   background: #6cbf3b;
   color: white;
   font-size: 1rem;
+  padding: 1rem;
+  text-align: center;
 }
 
 /* The Modal (background) */
