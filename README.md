@@ -428,6 +428,8 @@ async function shuffleCards(id) {
 
 * There are still some bugs in the game code. The turns don't always get passed around the way they should
 
+* Vuile was function, when players get 4 image cards they can click this to draw 4 new cards. The other players can check his hand if they want to. If the player was bluffing he'll get a point, if not the players that checked will get a point.
+
 ## Installation 📀
 
 ```

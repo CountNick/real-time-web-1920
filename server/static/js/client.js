@@ -1,5 +1,6 @@
 
 const socket = io();
+const span = document.getElementsByClassName("close")[0];
 const loginScreen = document.querySelector('.login')
 const roomFullSection = document.querySelector('.roomFull')
 const rooms = document.getElementsByName('room') 
@@ -19,6 +20,8 @@ const foldToepButton = document.querySelector('.foldToep')
 const pointsDisplay = document.querySelector('.points')
 const leaveButton = document.querySelector('.leave')
 const popup = document.getElementById('myModal')
+const winnerPopup = document.getElementById('winner-popup')
+const winnerMessage = document.getElementById('winnerMessage')
 let players;
 let currentRoom;
 let points = 0;
@@ -187,6 +190,11 @@ socket.on('game over', (msg) => {
     gameField.innerHTML = ''
     cardsSection.innerHTML = ''
     console.log(msg)
+
+    winnerMessage.textContent = msg
+    winnerPopup.style.display = 'block'
+
+    span.addEventListener('click', () => winnerPopup.style.display = 'none')
 
     // popup.style.display = "block";
     // toepMessage.textContent = msg
