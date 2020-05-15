@@ -1,6 +1,7 @@
 
 const socket = io();
 const span = document.getElementsByClassName("close")[0];
+const closeRules = document.querySelector(".close2");
 const loginScreen = document.querySelector('.login')
 const roomFullSection = document.querySelector('.roomFull')
 const rooms = document.getElementsByName('room') 
@@ -14,6 +15,8 @@ const gameField = document.querySelector('.gameField')
 const turn = document.querySelector('.turn')
 const startButton = document.querySelector('.start')
 const toepButton = document.querySelector('.toep')
+const rulesButton = document.querySelector('.rulesButton')
+const rulesPopup = document.querySelector('.rulesPopup')
 const toepMessage = document.querySelector('.toepMessage')
 const joinToepButton = document.querySelector('.joinToep')
 const foldToepButton = document.querySelector('.foldToep')
@@ -218,6 +221,11 @@ socket.on('started already', (msg) => {
     playerInfo.style.display = 'none'
     roomFullSection.style.display = 'block'
     console.log(msg)
+})
+
+rulesButton.addEventListener('click',() => {
+    rulesPopup.style.display = 'block'
+    closeRules.addEventListener('click', () => rulesPopup.style.display = 'none')
 })
 
 function appendMessage(message, classToBeAdded){

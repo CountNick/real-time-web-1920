@@ -209,7 +209,7 @@ button{
 }
 
 
-.winnerPopup {
+.winnerPopup, .rulesPopup {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
@@ -223,7 +223,7 @@ button{
 }
 
 /* The Close Button */
-.close {
+.close, .close2 {
   color: #aaa;
   float: right;
   font-size: 28px;
@@ -235,4 +235,8 @@ button{
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.rulesPopup{
+  display: none;
 }
