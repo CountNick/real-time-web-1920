@@ -18,8 +18,8 @@ Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wis
     * #### [Client side](https://github.com/CountNick/real-time-web-1920#client-side)
     * #### [Server side](https://github.com/CountNick/real-time-web-1920#server-side)
 * ### [API Used](https://github.com/CountNick/real-time-web-1920#api-used-1)
-* ### [Wishlist]()
-* ### [Installation]()
+* ### [Wishlist](https://github.com/CountNick/real-time-web-1920#wishlist-1)
+* ### [Installation](https://github.com/CountNick/real-time-web-1920#installation-)
 
 ## Game rules 🎮
 
@@ -429,6 +429,24 @@ async function shuffleCards(id) {
 * There are still some bugs in the game code. The turns don't always get passed around the way they should
 
 * Vuile was function, when players get 4 image cards they can click this to draw 4 new cards. The other players can check his hand if they want to. If the player was bluffing he'll get a point, if not the players that checked will get a point.
+
+* Theres still a buf in the turn message that should be fixed. At the end of a round it will display that it's a players turn while it's not
+
+* There sometimes is a bug in round winners for round 2 and 3. It will look at the wring card to decide who the winner is
+
+* Add a database. didn't have enough time for this
+    * The idea was to keep track of wins and make a leaderboard
+    
+
+* Refactor code. Didn't have time to refactor the code anymore:
+    * Put every function that is associated with finding game data in the game module
+    * Put everything associated with the api in the api module
+    * Remove console logs
+
+## Sources
+
+[Taking turns with sockets](https://stackoverflow.com/questions/42107359/passing-turns-with-socket-io-and-nodejs-in-turn-based-game) - helped me with passing turns between sockets
+[Chess game](https://home.aveek.io/blog/post/making-an-online-chess-website-with-socketio/) - helped me with room implementation
 
 ## Installation 📀
 

@@ -22,6 +22,7 @@ nunjucks.configure(`${__dirname}/view/pages`, {
 let games = Array(4);
 
 async function fillGamesArray(){
+//source: https://home.aveek.io/blog/post/making-an-online-chess-website-with-socketio/
 for (let i = 0; i < 4; i++) {
   games[i] = {players: 0 , pid: [0 , 0, 0, 0], deck: {}, started: false, turn: 0, currentTurn: 0, toeps: 0, playerList: [
     {
@@ -88,7 +89,7 @@ function thirdCardPlayed(arrLength){
 }
 
 function next_turn(obj, socket){
-
+  //source: https://stackoverflow.com/questions/42107359/passing-turns-with-socket-io-and-nodejs-in-turn-based-game
   
   const players = obj.pid.filter(id => id !== 0)
 
