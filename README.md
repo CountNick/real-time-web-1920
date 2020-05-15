@@ -4,7 +4,8 @@
 
 
 ## Introduction
-Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wist ik dan ook eindelijk wat mijn concept zou moeten zijn, een potje tjoep natuurlijk! Omdat het tijdens deze moeilijke tijden van corona niet altijd mogelijk is bij elkaar over de vloer te gaan dacht ik dat het leuk en bruikbaar zou zijn om zelf een online toep spel te maken.
+
+Me and my friends love to play a game called toepen. So when i saw the deck of cards api i immideately knew what my concept would be. A game of tjoep ofcourse! Because of these weird times that we live in it's not always possible to go see each othe irl. That's why i thought this concept would be of value.
 
 ![Game](https://user-images.githubusercontent.com/47485018/81941558-44aff900-95f9-11ea-820e-106d353d4a01.png)
 
