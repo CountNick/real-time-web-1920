@@ -18,7 +18,7 @@ Mijn vrienden en ik toepen graag met elkaar toen ik de deck of cards api zag wis
     * #### [Client side](https://github.com/CountNick/real-time-web-1920#client-side)
     * #### [Server side](https://github.com/CountNick/real-time-web-1920#server-side)
 * ### [API Used](https://github.com/CountNick/real-time-web-1920#api-used-1)
-* ### [Features]()
+* ### [Wishlist]()
 * ### [Installation]()
 
 ## Game rules 🎮
@@ -422,6 +422,11 @@ async function shuffleCards(id) {
   return shuffledDeck
 }
 ```
+## Wishlist
+
+* It would have been nice to have someone be able to be the complete winner of the game
+
+* There are still some bugs in the game code. The turns don't always get passed around the way they should
 
 ## Installation 📀
 
